@@ -76,8 +76,16 @@ public class ShopContext : BaseDynamoDbContext
     public IDynamoDbSet<Order> Orders => Set<Order>();
 }
 
-// 4. Register + create tables
+// 4. Register. The context needs a current user, a clock and a MediatR instance
+//    for audit stamping and domain-event dispatch - register them alongside it.
+builder.Services.AddSingleton<IDateTime, UtcDateTime>();
+builder.Services.AddSingleton<ICurrentUser, YourCurrentUser>();      // your implementation
+builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<Program>());
+builder.Services.Configure<AwsTagsConfigSettings>(builder.Configuration.GetSection("AwsTags"));
+
 builder.Services.AddPersistenceDynamoDb<ShopContext>(builder.Configuration, builder.Environment);
+
+// Creates every table (with its GSIs + TTL) on startup:
 await app.UsePersistenceDynamoAsync<ShopContext>(new DynamoDbRepositoryOptions());
 
 // 5. Use it
@@ -86,12 +94,28 @@ order.Quantity += 1;                 // change tracking picks this up
 await context.SaveChangesAsync();    // atomic TransactWriteItems + ETag concurrency
 ```
 
+`AddPersistenceDynamoDb` registers the `IAmazonDynamoDB` client from your `AWS` config
+section and auto-discovers every `DocEntityConfiguration<T>` in the context's assembly.
+
 ### Optional building blocks
 
 ```csharp
 builder.Services.AddDynamoDbOutbox();            // transactional outbox + dispatcher
 builder.Services.AddDynamoDbDistributedLock();   // IDistributedLock
 ```
+
+## Supported LINQ (and what isn't — yet)
+
+Predicates translate to DynamoDB filter/key-condition expressions:
+
+**Supported:** `==` `!=` `<` `<=` `>` `>=` `&&` `||`, `StartsWith`, `Contains`,
+list-`Contains` (→ `IN`), `Between`, null checks, reserved-word aliasing, and automatic
+Query-vs-Scan / GSI selection.
+
+**Not yet supported** (throws `NotSupportedException` — use the repository/`QueryExpression`
+helpers or post-process in memory): `OrderBy`/`ThenBy`, `Take`/`Skip`, `Select` projections,
+`GroupBy`, `Join`, and aggregates (`Sum`/`Min`/`Max`/`Average`). DynamoDB sort order comes
+from the sort key / `ScanIndexForward`, not `OrderBy`.
 
 ## Running against LocalStack
 
@@ -106,14 +130,28 @@ for a full end-to-end setup verified against LocalStack.
 | **EntityFrameworkCore.DynamoDb** | the context/sets/LINQ translation, change tracking, table provider, outbox, lock |
 | **EntityFrameworkCore.DynamoDb.Abstractions** | `DocEntity`/`BaseEntity`, `IUnitOfWork`, domain/integration events, `IDistributedLock`, `ICryptoProvider` |
 
-## Status & roadmap
+## Status & maturity
 
-Extracted from a larger AWS-common library and verified end to end against LocalStack.
+**v0.1 — early but real.** The core is extracted from a larger library and was verified
+end to end against LocalStack (create/query/update/delete, GSI queries, ETag concurrency,
+transactional saves, outbox, distributed lock). Treat it as a solid foundation, not yet a
+battle-hardened production ORM. Known limitations to be aware of before adopting:
 
-- [x] GSI query support, ETag optimistic concurrency, transactional outbox, distributed lock
+- The LINQ translator covers filter/key predicates but not `OrderBy`/`Take`/`Select`/
+  aggregates (see above).
+- Value converters apply on write but not yet on read (`ConvertFromProvider`).
+- TTL (`ttl`) attribute mapping is not wired.
+- Complex deeply-nested `OR`/parenthesized filters can be simplified by the key-extraction
+  step — prefer flat `AND` predicates, or use `QueryExpression` for full control.
+- The default id convention is `"{partitionKey}:{guid}"`; a different key scheme needs custom
+  key configuration.
+
+### Roadmap
+
 - [ ] Value-converter read path (`ConvertFromProvider`)
 - [ ] TTL attribute mapping (`ttl`) wiring
 - [ ] `OrderBy`/`Take`/projection support in the LINQ translator
+- [ ] Publish to NuGet
 
 ## Contributing
 

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>EntityFrameworkCore.DynamoDb.Abstractions</PackageId>
+    <Description>Foundation types for EntityFrameworkCore.DynamoDb: base document entity, unit of work, domain/integration events, distributed-lock and crypto abstractions.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageReference Include="LocalStack.Client.Extensions" Version="1.4.2" />
+  </ItemGroup>
+
+</Project>

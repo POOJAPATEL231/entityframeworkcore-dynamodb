@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>EntityFrameworkCore.DynamoDb</PackageId>
+    <Description>An Entity Framework Core-style API over Amazon DynamoDB: DbContext/DbSet, LINQ predicate translation, change tracking, transactional SaveChanges with ETag concurrency, GSI queries, table auto-creation, transactional outbox and a distributed lock. Not an official EF Core provider - an EF-style API over the AWS SDK.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.405.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="9.0.2" />
+    <!-- Provides the relational model-builder extensions (e.g. HasColumnOrder) used by
+         the EF-metadata-based entity configuration adapter. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EntityFrameworkCore.DynamoDb.Tests" />
+    <ProjectReference Include="..\EntityFrameworkCore.DynamoDb.Abstractions\EntityFrameworkCore.DynamoDb.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

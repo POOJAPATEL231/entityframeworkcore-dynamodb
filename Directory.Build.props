@@ -1,0 +1,27 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- Shared NuGet package metadata. -->
+  <PropertyGroup>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>Pooja</Authors>
+    <Product>EntityFrameworkCore.DynamoDb</Product>
+    <Copyright>Copyright (c) 2026 Pooja and contributors</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile Condition="Exists('$(MSBuildProjectDirectory)\README.md')">README.md</PackageReadmeFile>
+    <PackageTags>dynamodb;entity-framework;entityframeworkcore;efcore;orm;aws;dotnet;linq;dbcontext</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/POOJAPATEL231/entityframeworkcore-dynamodb</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/POOJAPATEL231/entityframeworkcore-dynamodb</PackageProjectUrl>
+  </PropertyGroup>
+
+</Project>
